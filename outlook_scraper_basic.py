@@ -8,7 +8,7 @@ import pandas as pd
 from datetime import datetime
 import win32com.client
 import os
-# import re
+import re
 
 outlook = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
 date_today = datetime.today().strftime('%Y-%m-%d') # to add to file names
@@ -37,10 +37,10 @@ start_date = '2025-02-10'
 end_date = '2025-02-11'
 
 # Enter the subject line of the e-mails that you want to search for. Don't add RE: or FW: 
-subject_line = 'Somerset IUCS SitRep'
+subject_line = 'Somerset Hub Daily Bed State'
 
 # Enter the address of the sender (e.g.xxxx@SomersetFT.nhs.uk)
-email_sender = 'Lewis.Parnell@huc.nhs.uk'
+email_sender = r'@somersetft\.nhs\.uk$'
 
 ######################################################################################################
 '''
@@ -103,7 +103,7 @@ for message in messages:
                     sender_check = message.SenderEmailAddress
 
             if email_sender is not None:
-                if email_sender.lower() != sender_check.lower():
+                if not re.search(email_sender.lower(), sender_check.lower()):
                     continue
                 else:
                     sender.append(sender_check)
