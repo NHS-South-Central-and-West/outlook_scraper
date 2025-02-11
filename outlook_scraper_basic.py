@@ -8,6 +8,7 @@ import pandas as pd
 from datetime import datetime
 import win32com.client
 import os
+# import re
 
 outlook = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
 date_today = datetime.today().strftime('%Y-%m-%d') # to add to file names
@@ -69,62 +70,63 @@ attachments = []
 
 processing_count = 0
 
-while processing_count < max_items:
-    for message in messages:
-        try:
-            if message.Class == 43:     # Mail Items only (not calendar invitations/notifications)
+for message in messages:
+    if processing_count >= max_items:
+        break
+    try:
+        if message.Class == 43:     # Mail Items only (not calendar invitations/notifications)
 
-                processing_count +=1    # For every Mail Item, add to the count tally
+            processing_count +=1    # For every Mail Item, add to the count tally
 
-                # Retrieve date e-mail was sent, as long as within defined date range
-                email_date =  pd.to_datetime(message.senton.date())  
-                if not (start_date <= email_date <= end_date):
+            # Retrieve date e-mail was sent, as long as within defined date range
+            email_date =  pd.to_datetime(message.senton.date())  
+            if not (start_date <= email_date <= end_date):
+                continue
+
+            received_date.append(message.senton.date())
+
+            # Retrieve subject line
+            if subject_line is not None:
+                if subject_line.lower() not in message.Subject.lower():
                     continue
 
-                received_date.append(message.senton.date())
+            subject.append(message.Subject)
 
-                # Retrieve subject line
-                if subject_line is not None:
-                    if subject_line.lower() not in message.Subject.lower():
-                        continue
-
-                subject.append(message.Subject)
-
-                # Retrieve sender, handling Exchange Server addresses and distribution lists
-                if message.Class == 43:
-                    if message.SenderEmailType == 'EX':
-                        if message.Sender.GetExchangeUser() != None:
-                            sender_check = message.Sender.GetExchangeUser().PrimarySmtpAddress
-                        else:
-                            sender_check = message.GetExchangeDistributionList().PrimarySmtpAddress
+            # Retrieve sender, handling Exchange Server addresses and distribution lists
+            if message.Class == 43:
+                if message.SenderEmailType == 'EX':
+                    if message.Sender.GetExchangeUser() != None:
+                        sender_check = message.Sender.GetExchangeUser().PrimarySmtpAddress
                     else:
-                        sender_check = message.SenderEmailAddress
+                        sender_check = message.GetExchangeDistributionList().PrimarySmtpAddress
+                else:
+                    sender_check = message.SenderEmailAddress
 
-                if email_sender is not None:
-                    if email_sender.lower() != sender_check.lower():
-                        continue
-                    else:
-                        sender.append(sender_check)
+            if email_sender is not None:
+                if email_sender.lower() != sender_check.lower():
+                    continue
+                else:
+                    sender.append(sender_check)
 
-                # Retrieve attachments where they match the file types specified by the user
-                attachment_list = []
-                for attachment in message.Attachments:
-                    file_name = attachment.FileName
-                    file_extension = os.path.splitext(file_name)[1].lower() # get just the extension from the FileName              
+            # Retrieve attachments where they match the file types specified by the user
+            attachment_list = []
+            for attachment in message.Attachments:
+                file_name = attachment.FileName
+                file_extension = os.path.splitext(file_name)[1].lower() # get just the extension from the FileName              
 
-                    if file_extension in [ext.lower() for ext in file_types]:
-                        file_name_updated = f'{os.path.splitext(file_name)[0]}_{email_date.strftime('%Y-%m-%d')}{file_extension}'
-                        file_path = f'{os.getcwd()}\\output\\{file_name_updated}'
-                        attachment.SaveAsFile(file_path)
-                        attachment_list.append(attachment.FileName)
+                if file_extension in [ext.lower() for ext in file_types]:
+                    file_name_updated = f'{os.path.splitext(file_name)[0]}_{email_date.strftime('%Y-%m-%d')}{file_extension}'
+                    file_path = f'{os.getcwd()}\\output\\{file_name_updated}'
+                    attachment.SaveAsFile(file_path)
+                    attachment_list.append(attachment.FileName)
 
-                attachments.append(attachment_list)
+            attachments.append(attachment_list)
 
-            else:
-                continue # skip anything that isn't a Mail Item
+        else:
+            continue # skip anything that isn't a Mail Item
 
-        except Exception as e:
-            print(f'Error processing e-mail: {e}')
+    except Exception as e:
+        print(f'Error processing e-mail: {e}')
 
 
 report = pd.DataFrame(list(zip(received_date,subject,sender,attachments)),
@@ -135,5 +137,3 @@ if report.empty:
     print('No relevant e-mails found')
 else:
     print(report)
-
-report
