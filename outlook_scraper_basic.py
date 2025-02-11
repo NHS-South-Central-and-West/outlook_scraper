@@ -1,5 +1,7 @@
-# building it up layered
-
+# TODO: make it so user enters "subject_line", but the check uses the constructed regex (i.e. x and y, below)
+# see if I can do something similar for the e-mail sender, so that colleagues don't need to worry about escape characters??
+# Turn it all into a function, perhaps OOP
+# Push to GitHub.
 ######################################################################################################
 '''
 Setup - DO NOT CHANGE when running this code.
@@ -8,7 +10,7 @@ import pandas as pd
 from datetime import datetime
 import win32com.client
 import os
-import re
+import regex as re
 
 outlook = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
 date_today = datetime.today().strftime('%Y-%m-%d') # to add to file names
@@ -21,7 +23,7 @@ User-Defined Controls
 ######################################################################################################
 
 # Enter the name of the mailbox address you want to extract from (xxxx@nhs.net)
-mailbox_name = 'NONPID (NHS SOUTH, CENTRAL AND WEST COMMISSIONING SUPPORT UNIT)'
+mailbox_name = 'edward.chick@nhs.net'
 
 # Enter the name of the mailbox folder you want to extract from (e.g. 'Inbox')
 folder = 'Inbox'
@@ -37,10 +39,12 @@ start_date = '2025-02-10'
 end_date = '2025-02-11'
 
 # Enter the subject line of the e-mails that you want to search for. Don't add RE: or FW: 
-subject_line = 'Somerset Hub Daily Bed State'
+x = 'test'
+y = f'(?:{x}){{e<=2}}'
+subject_line =r'(?:test){e<=2}'
 
 # Enter the address of the sender (e.g.xxxx@SomersetFT.nhs.uk)
-email_sender = r'@somersetft\.nhs\.uk$'
+email_sender = r'@nhs\.net$'
 
 ######################################################################################################
 '''
@@ -87,7 +91,7 @@ for message in messages:
 
             # Retrieve subject line
             if subject_line is not None:
-                if subject_line.lower() not in message.Subject.lower():
+                if not re.match(subject_line.lower(), message.Subject.lower()):
                     continue
 
             subject.append(message.Subject)
