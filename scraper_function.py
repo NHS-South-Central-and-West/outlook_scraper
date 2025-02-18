@@ -7,7 +7,7 @@ import os
 import regex as re
 
 def scraper(mailbox_name: str,folder: str,subject_line: str,email_sender: str,file_types: list[str],
-            output_location: str) -> object:
+            output_location: str):
     
     outlook = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
     date_today = datetime.today().strftime('%Y-%m-%d') # for date comparison and to add to filenames.
