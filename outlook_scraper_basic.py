@@ -13,7 +13,7 @@ import os
 import regex as re
 
 outlook = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
-date_today = datetime.today().strftime('%Y-%m-%d') # to add to file names
+date_today = datetime.today().strftime('%Y-%m-%d') # for date comparison and to add to filenames.
 max_items = 200 # set the max number of e-mails to look through
 
 ######################################################################################################
