@@ -1,5 +1,5 @@
-# TODO: make it so user enters "subject_line", but the check uses the constructed regex (i.e. x and y, below)
-# see if I can do something similar for the e-mail sender, so that colleagues don't need to worry about escape characters??
+# TODO:
+# Change it so that it is only looking for e-mails today. Perhaps do from 00:00 to 23:59.
 # Turn it all into a function, perhaps OOP
 # Push to GitHub.
 ######################################################################################################
@@ -14,7 +14,7 @@ import regex as re
 
 outlook = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
 date_today = datetime.today().strftime('%Y-%m-%d') # to add to file names
-max_items = 100 # set the max number of e-mails to look through
+max_items = 200 # set the max number of e-mails to look through
 
 ######################################################################################################
 '''
@@ -35,16 +35,14 @@ folder = 'Inbox'
 file_types = ['.xlsx'] # to avoid downloading images in peoples' signatures.
 
 # Enter the date range within which you want to search the mailbox (YYYY-MM-DD)
-start_date = '2025-02-10'
-end_date = '2025-02-11'
+# start_date = '2025-02-10'
+# end_date = '2025-02-11'
 
 # Enter the subject line of the e-mails that you want to search for. Don't add RE: or FW: 
-x = 'test'
-y = f'(?:{x}){{e<=2}}'
-subject_line =r'(?:test){e<=2}'
+subject_line = 'foobar'
 
-# Enter the address of the sender (e.g.xxxx@SomersetFT.nhs.uk)
-email_sender = r'@nhs\.net$'
+# Enter the address of the sender (or just the domain, but be careful if this is @nhs.net)
+email_sender = '@nhs.net'
 
 ######################################################################################################
 '''
@@ -60,8 +58,11 @@ messages = mailbox_folder_to_query.Items
 messages.Sort("[ReceivedTime]", True)
 
 # Convert user input dates to datetime for later comparison
-start_date = pd.to_datetime(start_date)
-end_date = pd.to_datetime(end_date)
+# start_date = pd.to_datetime(start_date)
+# end_date = pd.to_datetime(end_date)
+
+# Convert the user input subject line into fuzzy-matching regex
+subject_line_regex = f'(?:{subject_line}){{e<=2}}'
 
 # Create empty lists to receive message extract information for report
 # Less computationally expensive than appending to a DataFrame row by row
@@ -84,14 +85,14 @@ for message in messages:
 
             # Retrieve date e-mail was sent, as long as within defined date range
             email_date =  pd.to_datetime(message.senton.date())  
-            if not (start_date <= email_date <= end_date):
+            if email_date.strftime('%Y-%m-%d') != date_today:
                 continue
 
             received_date.append(message.senton.date())
 
             # Retrieve subject line
             if subject_line is not None:
-                if not re.match(subject_line.lower(), message.Subject.lower()):
+                if not re.match(subject_line_regex.lower(), message.Subject.lower()):
                     continue
 
             subject.append(message.Subject)
