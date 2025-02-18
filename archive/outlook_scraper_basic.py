@@ -1,7 +1,3 @@
-# TODO:
-# Change it so that it is only looking for e-mails today. Perhaps do from 00:00 to 23:59.
-# Turn it all into a function, perhaps OOP
-# Push to GitHub.
 ######################################################################################################
 '''
 Setup - DO NOT CHANGE when running this code.
