@@ -4,16 +4,35 @@ For technical assistance, please contact the [Specialist Analytics Team](mailto:
 
 ## Introduction
 
+A Python project to enable scraping of files sent in e-mails via Outlook. It is the first iteration and is intended to
+be run manually by the user. We are investigating the possibility of scheduling the execution of the script to run fully
+automatically.
+
+It has been designed to extract files from e-mails sent today since the original use case was to collect files submitted
+daily. The function can easily be modified to look at a specified or dynamic date range.
+
+## Pre-requisites
+- Python
+- VS Code
+- GitHub Desktop
+- uv (package manager) 
+
 ## Installation
 
-1. In File Explorer, navigate to the folder where you want to install this project.
-2. Right-click in the folder and select "Open in Terminal". You may first need to click on "Show more options".
-3. Copy in the instruction ... and press Enter.
-4. 
+1. Click on the "< > Code" button at the top of this page.
+2. Select "Open with GitHub Desktop"
+3. When prompted by the browser, allow the GitHub Desktop application to be opened.
+4. When GitHub Desktop opens, it should be in the "URL" tab. Under "Local path" select the folder where you want to save the Python files.
+5. Click on "Clone" and all the necessary files will be installed in the folder.
+6. Once the download is complete, you can click on "Open in Visual Studio Code"
+7. In the toolbar at the top of VS Code, click on "Terminal" > "New Terminal"
+8. In the Terminal pane at the bottom, after the folder path, type `uv venv` and press enter. You will see a new ".venv" folder in the 
+Explorer pane on the left-hand side. This is the Virtual Environment where all the Python libraries will get installed.
+9. Again in the Terminal pane, type `uv sync` and press enter. This will install all the Python libaries.
 
 ## Instructions
 
-1. Open the outlook_scraper_main.py file. This is where you will use the function and specify the parameters for what 
+1. Open the outlook_scraper_main.py file in VS Code. This is where you will use the function and specify the parameters for what 
 you want to extract from Outlook.
   - You can optionally copy outlook_scraper_main.py and use the copy, leaving the original as a backup master file. 
   As long as the line `from scraper_function import scraper` stays at the top.
@@ -32,7 +51,7 @@ extract from Outlook.
   - You can call the function as many times as you like. You could define separate output locations for each, or have them all
   point to the same output location.
 4. Once the output paths and the parameters of each function call have been defined, save the file.
-5. Click on the play button in the top-right corner to run the script.
+5. Click on the play button in the top-right corner of VS Code to run the script.
 6. Once the script has finished running, a little report of which relevant e-mails were found will appear in the terminal
 pane at the bottom of VS Code.
 7. Check the output location(s) for the downloaded files.
@@ -50,4 +69,4 @@ The number of permitted errors can be increased, if needed. This can be done by 
 `file_types= ['.xlsx','.csv']`
 - The function has been set up so that it will look at the latest 200 e-mails. This is to limit how long the script will run when
 an e-mail folder contains a large number of e-mails. This should be enough to cover any e-mails received in one day, but if you
-do want to increase the number of e-mails to check, go into the __scraper_function.py__ file and edit the value for `max_items`
+do want to increase the number of e-mails to check, go into the _scraper_function.py_ file and edit the value for `max_items`
